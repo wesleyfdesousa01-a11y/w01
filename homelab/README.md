@@ -15,6 +15,13 @@ no roteador.
   máquinas (Modbus/OPC-UA/S7) ──►└─ ia: Ollama + Open WebUI
 ```
 
+## 0. Tem outro aparelho? Mande a foto
+
+Tire uma foto do dispositivo (de preferência da etiqueta de modelo e das
+portas), mande para o Claude e escreva **"conectar ao homelab"**. Ele
+identifica o aparelho e devolve o passo a passo para ligá-lo à stack e ao
+próprio Claude. Detalhes em [docs/conectar-claude.md](docs/conectar-claude.md).
+
 ## 1. Notebook
 
 1. Instale **Debian 12** ou **Ubuntu Server 24.04** (sem interface gráfica

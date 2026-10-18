@@ -1,0 +1,52 @@
+# Painel inicial. Serviços de perfis desligados aparecem, mas ficam fora do ar.
+- Núcleo:
+    - Monitoramento:
+        href: http://{{HOMEPAGE_VAR_HOST}}:3001
+        description: Uptime Kuma, avisa quando algo cai
+        container: uptime-kuma
+    - Syncthing:
+        href: http://{{HOMEPAGE_VAR_HOST}}:8384
+        description: Sync do vault Obsidian e das fotos do celular
+        container: syncthing
+    - AdGuard:
+        href: http://{{HOMEPAGE_VAR_HOST}}:8053
+        description: DNS com bloqueio de anúncios
+        container: adguard
+
+- Produção:
+    - Node-RED:
+        href: http://{{HOMEPAGE_VAR_HOST}}:1880
+        description: Fluxos Modbus / OPC-UA / MQTT
+        container: node-red
+    - Grafana:
+        href: http://{{HOMEPAGE_VAR_HOST}}:3002
+        description: Painéis das máquinas
+        container: grafana
+    - InfluxDB:
+        href: http://{{HOMEPAGE_VAR_HOST}}:8086
+        description: Séries temporais (bucket "producao")
+        container: influxdb
+
+- Automação e IA:
+    - n8n:
+        href: http://{{HOMEPAGE_VAR_HOST}}:5678
+        description: Automações e integrações
+        container: n8n
+    - Open WebUI:
+        href: http://{{HOMEPAGE_VAR_HOST}}:3004
+        description: Chat com modelos locais (Ollama)
+        container: open-webui
+
+- Mídia e dev:
+    - Jellyfin:
+        href: http://{{HOMEPAGE_VAR_HOST}}:8096
+        description: Filmes, séries e músicas
+        container: jellyfin
+    - Arquivos:
+        href: http://{{HOMEPAGE_VAR_HOST}}:8080
+        description: File Browser
+        container: filebrowser
+    - Gitea:
+        href: http://{{HOMEPAGE_VAR_HOST}}:3003
+        description: Git próprio
+        container: gitea

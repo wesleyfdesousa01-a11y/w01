@@ -1,0 +1,7 @@
+title: Homelab
+language: pt-BR
+theme: dark
+headerStyle: clean
+layout:
+  Núcleo: { style: row, columns: 3 }
+  Produção: { style: row, columns: 3 }

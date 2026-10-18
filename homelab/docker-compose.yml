@@ -1,0 +1,183 @@
+# Stack do homelab: notebook antigo como servidor, celular Android como nó auxiliar.
+#
+# Os serviços são agrupados em perfis. O install.sh escolhe os perfis pela RAM
+# e grava COMPOSE_PROFILES no .env. Para mudar depois, edite o .env e rode:
+#   docker compose up -d
+#
+# Perfis:
+#   (sem perfil)  núcleo: painel, monitoramento, Syncthing, AdGuard
+#   industria     MQTT + Node-RED + InfluxDB + Grafana (máquinas de produção)
+#   automacao     n8n
+#   midia         Jellyfin + File Browser
+#   dev           Gitea
+#   ia            Ollama + Open WebUI (precisa de 8GB+ de RAM)
+
+x-base: &base
+  restart: unless-stopped
+  env_file: .env
+  logging:
+    driver: json-file
+    options: { max-size: "10m", max-file: "3" }
+
+services:
+  # ---------------------------------------------------------------- núcleo
+  homepage:
+    <<: *base
+    image: ghcr.io/gethomepage/homepage:latest
+    ports: ["3000:3000"]
+    environment:
+      HOMEPAGE_ALLOWED_HOSTS: "*"
+    volumes:
+      - ./config/homepage:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  uptime-kuma:
+    <<: *base
+    image: louislam/uptime-kuma:1
+    ports: ["3001:3001"]
+    volumes:
+      - ./data/uptime-kuma:/app/data
+
+  syncthing:
+    <<: *base
+    image: syncthing/syncthing:latest
+    hostname: homelab
+    environment:
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+    ports:
+      - "8384:8384"
+      - "22000:22000/tcp"
+      - "22000:22000/udp"
+      - "21027:21027/udp"
+    volumes:
+      - ./data/syncthing:/var/syncthing
+
+  adguard:
+    <<: *base
+    image: adguard/adguardhome:latest
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "3080:3000"   # assistente de instalação (só na primeira vez)
+      - "8053:80"     # painel depois de instalado
+    volumes:
+      - ./data/adguard/work:/opt/adguardhome/work
+      - ./data/adguard/conf:/opt/adguardhome/conf
+
+  # ------------------------------------------------------------- industria
+  mosquitto:
+    <<: *base
+    image: eclipse-mosquitto:2
+    profiles: [industria]
+    ports: ["1883:1883"]
+    volumes:
+      - ./config/mosquitto:/mosquitto/config
+      - ./data/mosquitto:/mosquitto/data
+
+  node-red:
+    <<: *base
+    image: nodered/node-red:latest
+    profiles: [industria]
+    ports: ["1880:1880"]
+    environment:
+      TZ: ${TZ:-America/Sao_Paulo}
+    volumes:
+      - ./data/node-red:/data
+    depends_on: [mosquitto]
+
+  influxdb:
+    <<: *base
+    image: influxdb:2
+    profiles: [industria]
+    ports: ["8086:8086"]
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUX_PASSWORD}
+      DOCKER_INFLUXDB_INIT_ORG: homelab
+      DOCKER_INFLUXDB_INIT_BUCKET: producao
+      DOCKER_INFLUXDB_INIT_RETENTION: 90d
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUX_TOKEN}
+    volumes:
+      - ./data/influxdb:/var/lib/influxdb2
+
+  grafana:
+    <<: *base
+    image: grafana/grafana-oss:latest
+    profiles: [industria]
+    ports: ["3002:3000"]
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+    volumes:
+      - ./data/grafana:/var/lib/grafana
+      - ./config/grafana/provisioning:/etc/grafana/provisioning
+    depends_on: [influxdb]
+
+  # ------------------------------------------------------------- automacao
+  n8n:
+    <<: *base
+    image: docker.n8n.io/n8nio/n8n:latest
+    profiles: [automacao]
+    ports: ["5678:5678"]
+    environment:
+      GENERIC_TIMEZONE: ${TZ:-America/Sao_Paulo}
+      N8N_SECURE_COOKIE: "false"   # acesso por http na rede local / Tailscale
+      N8N_DIAGNOSTICS_ENABLED: "false"
+    volumes:
+      - ./data/n8n:/home/node/.n8n
+
+  # ----------------------------------------------------------------- midia
+  jellyfin:
+    <<: *base
+    image: jellyfin/jellyfin:latest
+    profiles: [midia]
+    ports: ["8096:8096"]
+    volumes:
+      - ./data/jellyfin/config:/config
+      - ./data/jellyfin/cache:/cache
+      - ${MEDIA_DIR:-./media}:/media:ro
+
+  filebrowser:
+    <<: *base
+    image: filebrowser/filebrowser:latest
+    profiles: [midia]
+    ports: ["8080:80"]
+    volumes:
+      - ${MEDIA_DIR:-./media}:/srv
+      - ./data/filebrowser/database.db:/database.db
+
+  # ------------------------------------------------------------------- dev
+  gitea:
+    <<: *base
+    image: gitea/gitea:1
+    profiles: [dev]
+    ports:
+      - "3003:3000"
+      - "2222:22"
+    environment:
+      USER_UID: ${PUID:-1000}
+      USER_GID: ${PGID:-1000}
+    volumes:
+      - ./data/gitea:/data
+
+  # -------------------------------------------------------------------- ia
+  ollama:
+    <<: *base
+    image: ollama/ollama:latest
+    profiles: [ia]
+    ports: ["11434:11434"]
+    volumes:
+      - ./data/ollama:/root/.ollama
+
+  open-webui:
+    <<: *base
+    image: ghcr.io/open-webui/open-webui:main
+    profiles: [ia]
+    ports: ["3004:8080"]
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434
+    volumes:
+      - ./data/open-webui:/app/backend/data
+    depends_on: [ollama]

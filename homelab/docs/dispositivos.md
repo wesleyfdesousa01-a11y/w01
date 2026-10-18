@@ -9,6 +9,8 @@ Identificados pela foto de 18/10/2026. Confirme os celulares em
 | Xiaomi Mi A2 (ou Mi 6X) | Logo MI, câmera dupla com flash no meio, corpo fosco. **Liga, mas a tela está com defeito** | Média | **Nó Termux sem tela**, controlado pelo notebook com scrcpy |
 | Motorola One Hyper | Câmera frontal pop-up, câmera dupla, "motorola one" na traseira | Média | **Painel fixo**: Homepage/Grafana na parede |
 | Motorola Moto G8 Plus | "48MP", câmera de ação separada + laser | Média | **Controle da smart TV** (Kore, Jellyfin); ver `tv/README.md` |
+| Monitor ~19" | Foto de 18/10; marca e entradas a confirmar | Baixa | **Tela da smart TV** |
+| Dock USB com fonte própria | 2 saídas de vídeo, rede, 2× USB 3.0, áudio; modelo a confirmar pela etiqueta | Baixa | Hub do celular (mouse, teclado, rede). Se for DisplayLink, também leva vídeo |
 
 ## Dell Latitude E5450 (servidor)
 

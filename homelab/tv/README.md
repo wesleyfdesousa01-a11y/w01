@@ -37,6 +37,23 @@ monitor (aí o espelhamento de tela funciona).
 | IPTV / canais abertos | Add-on "PVR IPTV Simple Client" com uma lista M3U |
 | Netflix, Globoplay, Prime | **Não funciona bem** no Kodi/Linux. Melhor um Chromecast/TV box |
 
+## Teste com o dock: pode ser DisplayLink
+
+Com o celular ligado no dock, o monitor ficou sem sinal. Isso confirma que o
+celular não manda vídeo pelo USB-C. Mas se o dock for **DisplayLink** (a
+etiqueta embaixo diz; docks USB da Dell como D3100/D6000 são), dá um jeito:
+
+1. No celular, instale o app **DisplayLink Presenter** (Play Store).
+2. Ligue o celular no dock e abra o app. Se ele achar o dock, a tela do
+   celular aparece no monitor, e o som pode sair pela saída de áudio do dock.
+3. Apps com DRM (Netflix, Globoplay) costumam ficar pretos assim.
+
+Se for DisplayLink, o Dell também consegue usar o dock no Linux (driver
+DisplayLink/evdi), mesmo sem porta USB-C.
+
+Mesmo sem vídeo, o dock serve como hub do celular: mouse e teclado USB nele
+controlam o celular, e a porta de rede pode dar internet por cabo.
+
 ## Espelhar a tela do celular (plano B)
 
 Sem instalar o Kodi, dá para mostrar a tela do Moto no monitor com o `scrcpy`

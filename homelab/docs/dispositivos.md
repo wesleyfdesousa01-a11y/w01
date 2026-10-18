@@ -8,7 +8,7 @@ Identificados pela foto de 18/10/2026. Confirme os celulares em
 | Dell Latitude E5450 | Escrito no teclado | Alta | **Servidor** (Docker, toda a stack) |
 | Xiaomi Mi A2 (ou Mi 6X) | Logo MI, câmera dupla com flash no meio, corpo fosco. **Liga, mas a tela está com defeito** | Média | **Nó Termux sem tela**, controlado pelo notebook com scrcpy |
 | Motorola One Hyper | Câmera frontal pop-up, câmera dupla, "motorola one" na traseira | Média | **Painel fixo**: Homepage/Grafana na parede |
-| Motorola Moto G8 Plus | "48MP", câmera de ação separada + laser | Média | **Câmera** da produção/segurança (IP Webcam) |
+| Motorola Moto G8 Plus | "48MP", câmera de ação separada + laser | Média | **Controle da smart TV** (Kore, Jellyfin); ver `tv/README.md` |
 
 ## Dell Latitude E5450 (servidor)
 
@@ -89,13 +89,12 @@ outro computador (existe para Windows, Mac e Linux) só para essa configuração
 - A traseira está trincada: não importa na parede, mas veja o aviso de bateria
   abaixo.
 
-### Moto G8 Plus: câmera
+### Moto G8 Plus: controle da smart TV
 
-- Instale o **IP Webcam**, inicie o servidor e use
-  `http://IP_DO_CELULAR:8080/video` no Node-RED, no Grafana ou num NVR.
-- A câmera de ação (ultra-wide) é boa para filmar uma linha de produção
-  inteira com o celular na vertical.
-- Deixe na tomada; ele já estava carregando na foto.
+- Vira o controle remoto do monitor transformado em TV: o Dell roda o Kodi e
+  manda a imagem pelo HDMI. Passo a passo em [../tv/README.md](../tv/README.md).
+- Ele não tem saída de vídeo pelo USB-C, por isso não liga direto no monitor.
+- A câmera da produção pode ir para o One Hyper (IP Webcam) se precisar.
 
 ## Aviso: bateria de celular ligado na tomada o tempo todo
 

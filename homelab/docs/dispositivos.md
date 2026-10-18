@@ -6,7 +6,7 @@ Identificados pela foto de 18/10/2026. Confirme os celulares em
 | Aparelho | Identificação | Confiança | Papel na stack |
 |---|---|---|---|
 | Dell Latitude E5450 | Escrito no teclado | Alta | **Servidor** (Docker, toda a stack) |
-| Xiaomi Mi A2 (ou Mi 6X) | Logo MI, câmera dupla com flash no meio, corpo fosco | Média | **Nó Termux**: SSH, Syncthing, telemetria |
+| Xiaomi Mi A2 (ou Mi 6X) | Logo MI, câmera dupla com flash no meio, corpo fosco. **Liga, mas a tela está com defeito** | Média | **Nó Termux sem tela**, controlado pelo notebook com scrcpy |
 | Motorola One Hyper | Câmera frontal pop-up, câmera dupla, "motorola one" na traseira | Média | **Painel fixo**: Homepage/Grafana na parede |
 | Motorola Moto G8 Plus | "48MP", câmera de ação separada + laser | Média | **Câmera** da produção/segurança (IP Webcam) |
 
@@ -44,14 +44,41 @@ adb connect IP_DO_CELULAR:5555
 Daí o Claude Code consegue tirar print da tela, instalar apps, manter a tela
 ligada e reiniciar apps travados, sem você pegar no celular.
 
-### Xiaomi Mi A2: nó Termux
+### Xiaomi Mi A2: nó Termux sem tela
+
+O aparelho liga, mas a tela está com defeito. Para nó Termux isso não
+atrapalha: depois de configurado ele não precisa de tela. O problema é só
+configurar. A saída é o **scrcpy**, que mostra e controla a tela do celular
+numa janela do notebook (o `install.sh` instala o `scrcpy` junto com o `adb`).
+
+O caminho depende do que a tela ainda faz:
+
+| Situação da tela | O que fazer |
+|---|---|
+| Mostra imagem, mas o toque não funciona | Cabo **OTG + mouse USB**: liga a depuração USB com o mouse e depois usa o scrcpy |
+| Toque funciona, mas a imagem não aparece | Ligar a depuração "no escuro" é difícil; teste o scrcpy primeiro, a depuração pode já estar ligada |
+| Nem imagem, nem toque | Se a depuração USB já estava ligada antes, o scrcpy funciona direto. Se não, troque a tela (peça barata para o Mi A2) ou deixe ele de reserva |
+
+Com a depuração ligada, no notebook (precisa de interface gráfica ou de outro
+PC com scrcpy):
+
+```bash
+adb devices      # aceite a chave: ela aparece na janela do scrcpy
+scrcpy           # a tela do Mi abre no notebook, use mouse e teclado
+```
+
+Pelo scrcpy, instale o Termux, Termux:API e Termux:Boot (F-Droid) e rode:
 
 ```bash
 bash termux-setup.sh IP_DO_NOTEBOOK
 ```
 
-SSH na porta 8022, Syncthing e telemetria no tópico
-`homelab/celular/<modelo>/estado`.
+Depois disso ele fica sem tela de vez: SSH na porta 8022, Syncthing e
+telemetria no tópico `homelab/celular/<modelo>/estado`. Ative também
+`adb tcpip 5555` para o Claude Code alcançar o celular sem cabo.
+
+Se o Ubuntu Server do notebook não tiver interface gráfica, rode o scrcpy em
+outro computador (existe para Windows, Mac e Linux) só para essa configuração.
 
 ### Motorola One Hyper: painel na parede
 

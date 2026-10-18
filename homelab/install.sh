@@ -66,7 +66,7 @@ DONO="${SUDO_USER:-root}"
 # ------------------------------------------------------------ sistema
 echo; echo "==> Pacotes base"
 apt-get update -qq
-apt-get install -y -qq curl ca-certificates openssl tlp adb >/dev/null
+apt-get install -y -qq curl ca-certificates openssl tlp adb scrcpy >/dev/null
 
 if ! command -v docker >/dev/null; then
   echo "==> Docker"

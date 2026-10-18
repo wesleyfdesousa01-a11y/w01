@@ -22,6 +22,8 @@ portas), mande para o Claude e escreva **"conectar ao homelab"**. Ele
 identifica o aparelho e devolve o passo a passo para ligá-lo à stack e ao
 próprio Claude. Detalhes em [docs/conectar-claude.md](docs/conectar-claude.md).
 
+Aparelhos já identificados e o papel de cada um: [docs/dispositivos.md](docs/dispositivos.md).
+
 ## 1. Notebook
 
 1. Instale **Debian 12** ou **Ubuntu Server 24.04** (sem interface gráfica

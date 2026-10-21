@@ -131,10 +131,23 @@ MQTT_PASSWORD=$(segredo)
 INFLUX_PASSWORD=$(segredo)
 INFLUX_TOKEN=$(segredo 32)
 GRAFANA_PASSWORD=$(segredo 8)
+# Meta (Instagram/Facebook/Threads): preencha os IDs dos apps, veja meta/README.md
+META_API_CHAVE=$(segredo 24)
+META_APP_ID=
+META_APP_SECRET=
+META_IG_APP_ID=
+META_IG_APP_SECRET=
+META_THREADS_APP_ID=
+META_THREADS_APP_SECRET=
+META_REDIRECT_URI=https://localhost/
 EOF
   chmod 600 .env
 else
   sed -i "s/^COMPOSE_PROFILES=.*/COMPOSE_PROFILES=${PERFIS}/" .env
+  if ! grep -q '^META_API_CHAVE=' .env; then
+    echo "==> Acrescentando META_API_CHAVE ao .env (API do meta-publicar)"
+    echo "META_API_CHAVE=$(openssl rand -hex 24)" >> .env
+  fi
 fi
 set -a; . ./.env; set +a
 
@@ -150,11 +163,13 @@ fi
 
 # Node-RED roda como uid 1000 dentro do container.
 mkdir -p data/node-red && chown -R 1000:1000 data/node-red
+# meta-publicar também (guarda os tokens em data/meta/tokens.json).
+mkdir -p data/meta && chown -R 1000:1000 data/meta && chmod 700 data/meta
 chown "$DONO": .env
 
 # ------------------------------------------------------------ sobe
 echo "==> Subindo a stack"
-docker compose pull -q
+docker compose pull -q --ignore-buildable
 docker compose up -d
 
 cat <<EOF

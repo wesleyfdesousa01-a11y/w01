@@ -9,7 +9,7 @@ no roteador.
   celular ───────────────────── notebook (Docker)
   Termux                         ├─ núcleo: painel, Uptime Kuma, Syncthing, AdGuard
   ├─ SSH :8022                   ├─ industria: MQTT, Node-RED, InfluxDB, Grafana
-  ├─ Syncthing (fotos, vault)    ├─ automacao: n8n
+  ├─ Syncthing (fotos, vault)    ├─ automacao: n8n, meta-publicar
   └─ telemetria ──MQTT──────────►├─ midia: Jellyfin, File Browser
                                  ├─ dev: Gitea
   máquinas (Modbus/OPC-UA/S7) ──►└─ ia: Ollama + Open WebUI
@@ -110,6 +110,7 @@ na internet; use o Tailscale.
 | InfluxDB     | 8086  | industria |
 | Grafana      | 3002  | industria |
 | n8n          | 5678  | automacao |
+| meta-publicar | 8787 (API) | automacao |
 | Jellyfin     | 8096  | midia     |
 | File Browser | 8080  | midia     |
 | Gitea        | 3003, SSH 2222 | dev |
@@ -121,7 +122,7 @@ na internet; use o Tailscale.
 ```bash
 docker compose ps                 # o que está rodando
 docker compose logs -f node-red   # logs de um serviço
-docker compose pull && docker compose up -d   # atualizar tudo
+docker compose pull --ignore-buildable && docker compose up -d --build   # atualizar tudo
 ```
 
 Backup: tudo que importa está em `data/` e no `.env`. Use o Syncthing para
@@ -129,3 +130,10 @@ mandar uma cópia de `data/` para outro aparelho, ou um `rsync` agendado.
 
 O `organizar-downloads.sh` da raiz do repo pode rodar no notebook sobre a pasta
 que o Syncthing recebe do celular, agendado pelo cron ou pelo n8n.
+
+## Redes sociais (Instagram, Facebook, Threads)
+
+O serviço `meta-publicar` (perfil `automacao`) publica pela API oficial da
+Meta: foto, Reels, Story, carrossel e texto. O n8n chama a API dele para
+agendar e automatizar posts. Configuração e exemplos em
+[meta/README.md](meta/README.md).

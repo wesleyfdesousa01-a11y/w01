@@ -1,0 +1,412 @@
+{
+  "name": "Agendar posts nas redes da Meta",
+  "nodes": [
+    {
+      "id": "63002f99-3153-4db7-8f57-51cce2b9c2fe",
+      "name": "A cada 5 minutos",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "74a3ef77-bc2c-470c-b3a5-50dd0254025d",
+      "name": "Ler agendados",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        220,
+        300
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets"
+        }
+      },
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "COLE_AQUI_O_ID_DA_PLANILHA",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Posts",
+          "mode": "name"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "status",
+              "lookupValue": "agendado"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "feeea2b0-8a1d-4144-8f39-3b53259cd5bd",
+      "name": "Preparar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// Escolhe as linhas cuja data_hora já chegou e monta o corpo para o meta-publicar.\n// Aceita data como 25/10/2026 18:00, 2026-10-25 18:00 ou o número serial do Sheets.\nconst ZONA = 'America/Sao_Paulo';\nconst FORMATOS = ['dd/MM/yyyy HH:mm:ss', 'dd/MM/yyyy HH:mm', 'yyyy-MM-dd HH:mm:ss', 'yyyy-MM-dd HH:mm'];\n\nfunction quando(valor) {\n  if (typeof valor === 'number') {\n    const utc = DateTime.fromMillis(Math.round((valor - 25569) * 86400000), { zone: 'UTC' });\n    return utc.setZone(ZONA, { keepLocalTime: true });\n  }\n  const texto = String(valor ?? '').trim();\n  for (const formato of FORMATOS) {\n    const d = DateTime.fromFormat(texto, formato, { zone: ZONA });\n    if (d.isValid) return d;\n  }\n  const iso = DateTime.fromISO(texto, { zone: ZONA });\n  return iso.isValid ? iso : null;\n}\n\nconst lista = (v) => String(v ?? '').split(/[\\n,;]+/).map((x) => x.trim()).filter(Boolean);\nconst agora = DateTime.now().setZone(ZONA);\nconst saida = [];\n\nfor (const item of $input.all()) {\n  const linha = item.json;\n  const data = quando(linha.data_hora);\n  if (!data) {\n    saida.push({ json: { row_number: linha.row_number, status: 'erro',\n      resultado: `data_hora inválida: \"${linha.data_hora}\". Use 25/10/2026 18:00`, publicado_em: '' } });\n    continue;\n  }\n  if (data > agora) continue; // ainda não é hora\n\n  const corpo = {\n    destinos: lista(linha.destinos).map((d) => d.toLowerCase()),\n    tipo: String(linha.tipo ?? '').trim().toLowerCase(),\n    texto: String(linha.texto ?? ''),\n    midias: lista(linha.midias),\n  };\n  if (String(linha.link ?? '').trim()) corpo.link = String(linha.link).trim();\n  saida.push({ json: { row_number: linha.row_number, status: 'publicando', corpo } });\n}\n\nreturn saida;\n"
+      }
+    },
+    {
+      "id": "75bf7d92-b6ff-4cda-97cd-964e7be830fe",
+      "name": "Data válida?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1f8d8bed-c8e1-4267-afe9-e06bd1b828c0",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "publicando",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "9dae6bfe-6193-4276-a131-1cc75c4bf17b",
+      "name": "Marcar publicando",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        880,
+        200
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets"
+        }
+      },
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "COLE_AQUI_O_ID_DA_PLANILHA",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Posts",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $json.row_number }}",
+            "status": "publicando"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "b2bed2a0-2ad4-460a-bc3e-8c05ae62eb80",
+      "name": "Publicar na Meta",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        200
+      ],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "meta-publicar"
+        }
+      },
+      "parameters": {
+        "method": "POST",
+        "url": "http://meta-publicar:8787/publicar",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Preparar').item.json.corpo) }}",
+        "options": {
+          "timeout": 600000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "9fbd769d-1b43-400a-be8d-c9c33acf3515",
+      "name": "Resultado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        200
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Traduz a resposta do meta-publicar no que vai para a planilha.\nconst resp = $json;\nconst linha = $('Preparar').item.json.row_number;\nconst corpo = resp.body ?? {};\nlet status;\nlet resultado;\n\nif (resp.error) {\n  status = 'erro';\n  resultado = `Sem resposta do meta-publicar: ${resp.error.message ?? JSON.stringify(resp.error)}`;\n} else if (resp.statusCode === 200 || resp.statusCode === 207) {\n  const destinos = Object.entries(corpo);\n  resultado = destinos\n    .map(([destino, r]) => (r.ok ? `${destino}: ${r.url || r.id}` : `${destino}: ERRO ${r.erro}`))\n    .join('\\n');\n  const certos = destinos.filter(([, r]) => r.ok).length;\n  status = certos === destinos.length ? 'publicado' : certos > 0 ? 'parcial' : 'erro';\n} else {\n  status = 'erro';\n  resultado = `HTTP ${resp.statusCode}: ${corpo.erro ?? JSON.stringify(corpo)}`;\n}\n\nreturn {\n  json: {\n    row_number: linha,\n    status,\n    resultado,\n    publicado_em: status === 'erro' ? '' : DateTime.now().setZone('America/Sao_Paulo').toFormat('dd/MM/yyyy HH:mm'),\n  },\n};\n"
+      }
+    },
+    {
+      "id": "fde6e742-5701-44f1-ac13-3aa0b644e42f",
+      "name": "Atualizar planilha",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1540,
+        300
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets"
+        }
+      },
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "COLE_AQUI_O_ID_DA_PLANILHA",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Posts",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $json.row_number }}",
+            "status": "={{ $json.status }}",
+            "resultado": "={{ $json.resultado }}",
+            "publicado_em": "={{ $json.publicado_em }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "resultado",
+              "displayName": "resultado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "publicado_em",
+              "displayName": "publicado_em",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "11dd5520-3252-4a27-8706-e6b5a44a6d06",
+      "name": "Leia-me",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -60
+      ],
+      "parameters": {
+        "width": 640,
+        "height": 320,
+        "content": "## Agendar posts (Instagram, Facebook, Threads)\n\n1. Copie a planilha modelo (`homelab/n8n/posts-modelo.csv`) para o Google Sheets, aba **Posts**.\n2. Troque `COLE_AQUI_O_ID_DA_PLANILHA` nos 3 nós do Sheets (o ID está na URL da planilha).\n3. Credenciais: **Google Sheets OAuth2** e **Header Auth** `meta-publicar` (Name `Authorization`, Value `Bearer <META_API_CHAVE>`).\n4. Ative o workflow.\n\nA cada 5 min publica as linhas com status `agendado` cuja data_hora já passou e grava `publicado` / `parcial` / `erro` e os links na planilha."
+      }
+    }
+  ],
+  "connections": {
+    "A cada 5 minutos": {
+      "main": [
+        [
+          {
+            "node": "Ler agendados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ler agendados": {
+      "main": [
+        [
+          {
+            "node": "Preparar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar": {
+      "main": [
+        [
+          {
+            "node": "Data válida?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data válida?": {
+      "main": [
+        [
+          {
+            "node": "Marcar publicando",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Atualizar planilha",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar publicando": {
+      "main": [
+        [
+          {
+            "node": "Publicar na Meta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publicar na Meta": {
+      "main": [
+        [
+          {
+            "node": "Resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resultado": {
+      "main": [
+        [
+          {
+            "node": "Atualizar planilha",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo"
+  },
+  "pinData": {}
+}

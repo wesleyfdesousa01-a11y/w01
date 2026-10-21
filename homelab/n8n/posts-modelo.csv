@@ -1,0 +1,6 @@
+data_hora,destinos,tipo,texto,midias,link,status,resultado,publicado_em
+25/10/2026 18:00,"instagram,facebook,threads",foto,"Legenda do post #exemplo",https://seusite.com/foto.jpg,,agendado,,
+26/10/2026 12:30,"instagram,threads",carrossel,"Vários itens","https://seusite.com/1.jpg
+https://seusite.com/2.mp4",,agendado,,
+27/10/2026 09:00,instagram,reels,"Meu Reels",https://seusite.com/video.mp4,,rascunho,,
+28/10/2026 20:00,"facebook,threads",texto,"Post novo no blog",,https://seusite.com/blog/post,rascunho,,

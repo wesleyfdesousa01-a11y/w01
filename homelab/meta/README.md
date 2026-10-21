@@ -89,7 +89,8 @@ $M limites
 
 ### API (n8n)
 
-No n8n, use um nó **HTTP Request**:
+Para agendar por planilha, há um workflow pronto em [../n8n/README.md](../n8n/README.md).
+Para montar o seu, use um nó **HTTP Request**:
 
 - **Method:** POST
 - **URL:** `http://meta-publicar:8787/publicar`

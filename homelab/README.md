@@ -137,3 +137,6 @@ O serviço `meta-publicar` (perfil `automacao`) publica pela API oficial da
 Meta: foto, Reels, Story, carrossel e texto. O n8n chama a API dele para
 agendar e automatizar posts. Configuração e exemplos em
 [meta/README.md](meta/README.md).
+
+Para agendar posts por uma planilha do Google Sheets, importe o workflow
+pronto do n8n: [n8n/README.md](n8n/README.md).

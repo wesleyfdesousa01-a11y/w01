@@ -2,3 +2,4 @@
 data/
 media/
 config/mosquitto/passwd
+__pycache__/

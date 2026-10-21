@@ -111,6 +111,7 @@ na internet; use o Tailscale.
 | Grafana      | 3002  | industria |
 | n8n          | 5678  | automacao |
 | meta-publicar | 8787 (API) | automacao |
+| Hermes (agente) | — (Telegram) | agente |
 | Jellyfin     | 8096  | midia     |
 | File Browser | 8080  | midia     |
 | Gitea        | 3003, SSH 2222 | dev |
@@ -140,3 +141,7 @@ agendar e automatizar posts. Configuração e exemplos em
 
 Para agendar posts por uma planilha do Google Sheets, importe o workflow
 pronto do n8n: [n8n/README.md](n8n/README.md).
+
+Para ter um agente social media no Telegram, que planeja, escreve e agenda
+os posts com a sua aprovação, use o Hermes (perfil `agente`):
+[hermes/README.md](hermes/README.md).

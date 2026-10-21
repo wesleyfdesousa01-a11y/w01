@@ -11,6 +11,7 @@
 #   midia         Jellyfin + File Browser
 #   dev           Gitea
 #   ia            Ollama + Open WebUI (precisa de 8GB+ de RAM)
+#   agente        Hermes Agent: social media pelo Telegram (usa o meta-publicar)
 
 x-base: &base
   restart: unless-stopped
@@ -193,3 +194,25 @@ services:
     volumes:
       - ./data/open-webui:/app/backend/data
     depends_on: [ollama]
+
+  # ---------------------------------------------------------------- agente
+  # Hermes Agent (Nous Research). Sem env_file de propósito: o agente não deve
+  # ver as senhas da stack. As chaves dele ficam em data/hermes/.env.
+  # Configuração: hermes/README.md.
+  hermes:
+    image: nousresearch/hermes-agent:latest
+    profiles: [agente]
+    restart: unless-stopped
+    command: gateway run
+    environment:
+      HERMES_UID: ${PUID:-1000}
+      HERMES_GID: ${PGID:-1000}
+      TZ: ${TZ:-America/Sao_Paulo}
+    volumes:
+      - ./data/hermes:/opt/data
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+    deploy:
+      resources:
+        limits: { memory: 2G }

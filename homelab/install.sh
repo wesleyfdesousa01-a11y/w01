@@ -7,7 +7,7 @@
 #   sudo ./install.sh --so-detectar   # só mostra o hardware e a sugestão
 #
 # Opções:
-#   --perfis LISTA   Perfis separados por vírgula (industria,automacao,midia,dev,ia)
+#   --perfis LISTA   Perfis separados por vírgula (industria,automacao,midia,dev,ia,agente)
 #   --so-detectar    Não instala nada
 #   --sem-tailscale  Pula a instalação do Tailscale
 #   -h, --help       Ajuda

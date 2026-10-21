@@ -7,7 +7,7 @@
 # Perfis:
 #   (sem perfil)  núcleo: painel, monitoramento, Syncthing, AdGuard
 #   industria     MQTT + Node-RED + InfluxDB + Grafana (máquinas de produção)
-#   automacao     n8n
+#   automacao     n8n + meta-publicar (Instagram, Facebook e Threads)
 #   midia         Jellyfin + File Browser
 #   dev           Gitea
 #   ia            Ollama + Open WebUI (precisa de 8GB+ de RAM)
@@ -127,6 +127,18 @@ services:
       N8N_DIAGNOSTICS_ENABLED: "false"
     volumes:
       - ./data/n8n:/home/node/.n8n
+
+  # Publica no Instagram/Facebook/Threads pela API oficial. Veja meta/README.md.
+  # O n8n chama http://meta-publicar:8787/publicar com o header
+  # "Authorization: Bearer ${META_API_CHAVE}".
+  meta-publicar:
+    <<: *base
+    build: ./meta
+    image: homelab/meta-publicar
+    profiles: [automacao]
+    ports: ["8787:8787"]
+    volumes:
+      - ./data/meta:/data
 
   # ----------------------------------------------------------------- midia
   jellyfin:

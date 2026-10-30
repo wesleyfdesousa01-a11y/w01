@@ -32,6 +32,10 @@
         href: http://{{HOMEPAGE_VAR_HOST}}:5678
         description: Automações e integrações
         container: n8n
+    - Hermes:
+        href: http://{{HOMEPAGE_VAR_HOST}}:3005
+        description: Painel do dia, aprovações e modelos .md
+        container: painel
     - Open WebUI:
         href: http://{{HOMEPAGE_VAR_HOST}}:3004
         description: Chat com modelos locais (Ollama)

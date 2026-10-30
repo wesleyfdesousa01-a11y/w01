@@ -112,6 +112,7 @@ na internet; use o Tailscale.
 | n8n          | 5678  | automacao |
 | meta-publicar | 8787 (API) | automacao |
 | Hermes (agente) | — (Telegram) | agente |
+| Painel do Hermes | 3005 | agente |
 | Jellyfin     | 8096  | midia     |
 | File Browser | 8080  | midia     |
 | Gitea        | 3003, SSH 2222 | dev |
@@ -145,3 +146,5 @@ pronto do n8n: [n8n/README.md](n8n/README.md).
 Para ter um agente social media no Telegram, que planeja, escreve e agenda
 os posts com a sua aprovação, use o Hermes (perfil `agente`):
 [hermes/README.md](hermes/README.md).
+O painel do dia (aprovações pelo navegador, execuções e modelos .md) fica em
+`http://IP:3005`: [painel/README.md](painel/README.md).

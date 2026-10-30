@@ -133,6 +133,8 @@ INFLUX_TOKEN=$(segredo 32)
 GRAFANA_PASSWORD=$(segredo 8)
 # Meta (Instagram/Facebook/Threads): preencha os IDs dos apps, veja meta/README.md
 META_API_CHAVE=$(segredo 24)
+# Painel do Hermes (porta 3005): usuário qualquer, esta senha
+PAINEL_SENHA=$(segredo 12)
 META_APP_ID=
 META_APP_SECRET=
 META_IG_APP_ID=
@@ -147,6 +149,10 @@ else
   if ! grep -q '^META_API_CHAVE=' .env; then
     echo "==> Acrescentando META_API_CHAVE ao .env (API do meta-publicar)"
     echo "META_API_CHAVE=$(openssl rand -hex 24)" >> .env
+  fi
+  if ! grep -q '^PAINEL_SENHA=' .env; then
+    echo "==> Acrescentando PAINEL_SENHA ao .env (painel do Hermes)"
+    echo "PAINEL_SENHA=$(openssl rand -hex 12)" >> .env
   fi
 fi
 set -a; . ./.env; set +a
@@ -165,6 +171,8 @@ fi
 mkdir -p data/node-red && chown -R 1000:1000 data/node-red
 # meta-publicar também (guarda os tokens em data/meta/tokens.json).
 mkdir -p data/meta && chown -R 1000:1000 data/meta && chmod 700 data/meta
+# Painel do Hermes roda como PUID e escreve na fila de posts.
+mkdir -p data/painel data/hermes/posts && chown "$DONO": data/painel data/hermes data/hermes/posts
 chown "$DONO": .env
 
 # ------------------------------------------------------------ sobe

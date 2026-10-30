@@ -28,6 +28,9 @@ marcada.
 > **Hermes:** ✓ 3 posts na fila. *(ajusta o 3 e mostra de novo)*
 > …na quinta, às 18h30: **✅ 2026-10-29-1830-carrossel-graos — instagram: https://instagram.com/p/…**
 
+Também dá para aprovar ou recusar os rascunhos pelo navegador, no
+[painel do Hermes](../painel/README.md) (porta 3005).
+
 Outros pedidos que funcionam: "o que está agendado?", "muda o post de sexta
 para 12h", "cancela o de sábado", "por que o post de ontem deu erro?".
 

@@ -1,0 +1,66 @@
+/* Tokens do design system Hermes. Copiados do guia; não troque valores sem
+   revalidar o contraste (texto ≥ 4,5:1, bordas de controle e foco ≥ 3:1). */
+:root, [data-theme="dark"] {
+  --surface: #0b0b0c;
+  --surface-raised: #141416;
+  --surface-sunken: #1c1c1f;
+  --line: #26262a;
+  --line-strong: #66666f;
+  --ink: #ededef;
+  --ink-muted: #a1a1aa;
+  --ink-faint: #82828c;
+  --accent: #d4ff3a;
+  --accent-ink: #d4ff3a;
+  --accent-soft: #181d0a;
+  --accent-edge: #d4ff3a;
+  --on-accent: #0b0b0c;
+  --run: #7dbeff;
+  --fail: #ff7466;
+  --fail-soft: #24120f;
+  --done: var(--ink-faint);
+  --focus: #d4ff3a;
+  --link: var(--ink);
+  --shadow-pop: 0 12px 32px rgba(0, 0, 0, 0.6);
+  --scrim: rgba(0, 0, 0, 0.55);
+  color-scheme: dark;
+}
+[data-theme="light"] {
+  --surface: #fafaf9;
+  --surface-raised: #ffffff;
+  --surface-sunken: #f1f1ef;
+  --line: #e6e6e3;
+  --line-strong: #8c8c92;
+  --ink: #0b0b0c;
+  --ink-muted: #56565e;
+  --ink-faint: #6b6b73;
+  --accent: #d4ff3a;
+  --accent-ink: #4a6400;
+  --accent-soft: #f5ffd6;
+  --accent-edge: #6e8f00;
+  --on-accent: #0b0b0c;
+  --run: #0b5cad;
+  --fail: #c2271b;
+  --fail-soft: #fdecea;
+  --done: var(--ink-faint);
+  --focus: #0b5cad;
+  --link: var(--ink);
+  --shadow-pop: 0 12px 32px rgba(11, 11, 12, 0.10);
+  --scrim: rgba(11, 11, 12, 0.25);
+  color-scheme: light;
+}
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 40px;
+  --space-7: 56px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-pill: 999px;
+  --font-display: "Space Grotesk", "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, Menlo, monospace;
+}

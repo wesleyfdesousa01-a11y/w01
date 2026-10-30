@@ -12,6 +12,7 @@
 #   dev           Gitea
 #   ia            Ollama + Open WebUI (precisa de 8GB+ de RAM)
 #   agente        Hermes Agent: social media pelo Telegram (usa o meta-publicar)
+#                 + painel do Hermes na porta 3005
 
 x-base: &base
   restart: unless-stopped
@@ -216,3 +217,23 @@ services:
     deploy:
       resources:
         limits: { memory: 2G }
+
+  # Painel do Hermes: aprovações, execuções do dia e modelos .md. Veja painel/README.md.
+  # Também sem env_file: só recebe a senha do painel.
+  painel:
+    build: ./painel
+    image: homelab/hermes-painel
+    profiles: [agente]
+    restart: unless-stopped
+    user: "${PUID:-1000}:${PGID:-1000}"
+    ports: ["3005:3005"]
+    environment:
+      TZ: ${TZ:-America/Sao_Paulo}
+      PAINEL_SENHA: ${PAINEL_SENHA:-}
+    volumes:
+      - ./data/painel:/data
+      - ./data/hermes/posts:/hermes/posts
+      - ./hermes/scripts/posts.py:/app/posts.py:ro
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
